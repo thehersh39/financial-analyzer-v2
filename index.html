@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Event Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .trend-up { color: #10b981; }
+        .trend-down { color: #ef4444; }
+        .trend-neutral { color: #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">📊 Financial Event Analyzer</h1>
+                <p class="text-gray-600">Analyze the potential market impact of news events and announcements</p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Enter news event or announcement:
+                </label>
+                <textarea
+                    id="eventText"
+                    placeholder="e.g., 'Federal Reserve announces 0.25% interest rate increase' or 'Apple reports record quarterly earnings'"
+                    class="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                ></textarea>
+            </div>
+
+            <button
+                id="analyzeBtn"
+                class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
+                onclick="analyzeEvent()"
+            >
+                Analyze Market Impact
+            </button>
+
+            <div id="loadingDiv" class="hidden mt-8 text-center">
+                <div class="inline-flex items-center">
+                    <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                    <span class="text-gray-600">Analyzing market impact...</span>
+                </div>
+            </div>
+
+            <div id="resultsDiv" class="hidden mt-8 space-y-6">
+                <div class="border-t pt-8">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">📈 Analysis Results</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <span id="sentimentIcon" class="text-2xl mr-2"></span>
+                                <span class="font-semibold text-gray-700">Market Sentiment</span>
+                            </div>
+                            <p id="sentimentText" class="text-lg font-bold capitalize"></p>
+                            <p id="confidenceText" class="text-sm text-gray-600"></p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-2">⚠️</span>
+                                <span class="font-semibold text-gray-700">Market Impact</span>
+                            </div>
+                            <p id="impactText" class="text-lg font-bold text-orange-600 capitalize"></p>
+                            <p id="volatilityText" class="text-sm text-gray-600"></p>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-2">💰</span>
+                                <span class="font-semibold text-gray-700">Affected Sectors</span>
+                            </div>
+                            <div id="sectorsDiv" class="flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <span class="text-2xl mr-2">📅</span>
+                                <span class="font-semibold text-gray-700">Impact Timeframe</span>
+                            </div>
+                            <p id="timeframeText" class="text-lg font-bold text-blue-600"></p>
+                            <p class="text-sm text-gray-600">Expected duration of impact</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-2">🔍 Key Insights</h3>
+                        <ul id="insightsList" class="text-sm text-blue-700 space-y-1"></ul>
+                    </div>
+
+                    <div class="mt-6 bg-green-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-green-800 mb-2">💡 Trading Considerations</h3>
+                        <ul id="tradingTips" class="text-sm text-green-700 space-y-1"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function analyzeEvent() {
+            const eventText = document.getElementById('eventText').value;
+            if (!eventText.trim()) return;
+
+            // Show loading state
+            document.getElementById('analyzeBtn').disabled = true;
+            document.getElementById('analyzeBtn').textContent = 'Analyzing...';
+            document.getElementById('loadingDiv').classList.remove('hidden');
+            document.getElementById('resultsDiv').classList.add('hidden');
+
+            // Simulate API call
+            setTimeout(() => {
+                const analysis = generateMockAnalysis(eventText);
+                displayResults(analysis);
+                
+                // Hide loading state
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('analyzeBtn').textContent = 'Analyze Market Impact';
+                document.getElementById('loadingDiv').classList.add('hidden');
+                document.getElementById('resultsDiv').classList.remove('hidden');
+            }, 2000);
+        }
+
+        function generateMockAnalysis(eventText) {
+            const text = eventText.toLowerCase();
+            
+            // Smart sentiment analysis based on keywords
+            let sentiment = 'neutral';
+            if (text.includes('increase') || text.includes('growth') || text.includes('beat') || text.includes('record') || text.includes('positive')) {
+                sentiment = 'positive';
+            } else if (text.includes('decrease') || text.includes('decline') || text.includes('miss') || text.includes('fall') || text.includes('negative')) {
+                sentiment = 'negative';
+            }
+            
+            const confidence = (Math.random() * 20 + 75).toFixed(1);
+            
+            // Smart impact based on keywords
+            let impact = 'moderate';
+            if (text.includes('fed') || text.includes('federal reserve') || text.includes('major') || text.includes('significant')) {
+                impact = 'high';
+            } else if (text.includes('minor') || text.includes('small')) {
+                impact = 'low';
+            }
+            
+            const timeframes = ['Short-term (1-7 days)', 'Medium-term (1-4 weeks)', 'Long-term (1-6 months)'];
+            const timeframe = timeframes[Math.floor(Math.random() * timeframes.length)];
+            const volatility = (Math.random() * 20 + 8).toFixed(1);
+            
+            // Smart sector selection
+            const sectors = getRelevantSectors(text);
+            const insights = generateInsights(text, sentiment, impact);
+            const tradingTips = generateTradingTips(sentiment, impact, text);
+
+            return {
+                sentiment,
+                confidence,
+                impact,
+                timeframe,
+                volatility,
+                sectors,
+                insights,
+                tradingTips
+            };
+        }
+
+        function getRelevantSectors(text) {
+            const sectorMap = {
+                'tech': ['Technology', 'Software', 'Semiconductors'],
+                'apple': ['Technology', 'Consumer Electronics'],
+                'fed': ['Banking', 'Real Estate', 'Financial Services'],
+                'oil': ['Energy', 'Transportation'],
+                'bank': ['Financial Services', 'Real Estate'],
+                'health': ['Healthcare', 'Pharmaceuticals'],
+                'retail': ['Consumer Goods', 'E-commerce']
+            };
+            
+            let sectors = [];
+            for (const [keyword, sectorList] of Object.entries(sectorMap)) {
+                if (text.includes(keyword)) {
+                    sectors = sectors.concat(sectorList);
+                }
+            }
+            
+            if (sectors.length === 0) {
+                sectors = ['Technology', 'Financial Services', 'Consumer Goods'];
+            }
+            
+            return [...new Set(sectors)].slice(0, 4);
+        }
+
+        function generateInsights(text, sentiment, impact) {
+            const insights = [];
+            
+            if (text.includes('fed') || text.includes('interest rate')) {
+                insights.push('Interest rate changes typically affect banking and real estate sectors most directly');
+                insights.push('Bond markets often react immediately to Federal Reserve announcements');
+            }
+            
+            if (text.includes('earnings')) {
+                insights.push('Earnings reports can trigger sector-wide movements in related companies');
+                insights.push('Forward guidance often has more market impact than historical results');
+            }
+            
+            if (text.includes('oil') || text.includes('energy')) {
+                insights.push('Energy price changes have cascading effects on transportation and manufacturing costs');
+            }
+            
+            if (sentiment === 'positive') {
+                insights.push('Positive sentiment may lead to increased risk appetite and growth stock outperformance');
+            } else if (sentiment === 'negative') {
+                insights.push('Negative sentiment often triggers flight-to-safety behavior favoring bonds and defensive stocks');
+            }
+            
+            if (impact === 'high') {
+                insights.push('High impact events typically result in increased trading volumes and intraday volatility');
+            }
+
+            // Add default insights if none generated
+            if (insights.length === 0) {
+                insights.push('Market reactions depend heavily on current economic conditions and investor sentiment');
+                insights.push('Consider the timing of announcements relative to market hours and economic calendar');
+            }
+
+            return insights.slice(0, 4);
+        }
+
+        function generateTradingTips(sentiment, impact, text) {
+            const tips = [];
+            
+            if (impact === 'high') {
+                tips.push('Consider reducing position sizes due to expected high volatility');
+                tips.push('Set tight stop-losses as price swings may be dramatic');
+            }
+            
+            if (sentiment === 'negative') {
+                tips.push('Look for opportunities in defensive sectors like utilities and consumer staples');
+                tips.push('Consider hedging strategies or inverse ETFs for portfolio protection');
+            } else if (sentiment === 'positive') {
+                tips.push('Growth stocks and cyclical sectors may outperform in positive environments');
+                tips.push('Monitor for momentum continuation but watch for overbought conditions');
+            }
+            
+            if (text.includes('fed')) {
+                tips.push('Bank stocks often benefit from rising rates but may suffer from falling rates');
+            }
+            
+            tips.push('Always maintain proper risk management and position sizing');
+            tips.push('Consider the broader market context before making trading decisions');
+            
+            return tips.slice(0, 4);
+        }
+
+        function displayResults(analysis) {
+            // Sentiment
+            const sentimentIcon = document.getElementById('sentimentIcon');
+            const sentimentText = document.getElementById('sentimentText');
+            const confidenceText = document.getElementById('confidenceText');
+            
+            if (analysis.sentiment === 'positive') {
+                sentimentIcon.textContent = '📈';
+                sentimentText.className = 'text-lg font-bold text-green-600 capitalize';
+            } else if (analysis.sentiment === 'negative') {
+                sentimentIcon.textContent = '📉';
+                sentimentText.className = 'text-lg font-bold text-red-600 capitalize';
+            } else {
+                sentimentIcon.textContent = '➡️';
+                sentimentText.className = 'text-lg font-bold text-gray-600 capitalize';
+            }
+            
+            sentimentText.textContent = analysis.sentiment;
+            confidenceText.textContent = `Confidence: ${analysis.confidence}%`;
+
+            // Impact
+            document.getElementById('impactText').textContent = analysis.impact;
+            document.getElementById('volatilityText').textContent = `Expected volatility: +${analysis.volatility}%`;
+
+            // Sectors
+            const sectorsDiv = document.getElementById('sectorsDiv');
+            sectorsDiv.innerHTML = '';
+            analysis.sectors.forEach(sector => {
+                const span = document.createElement('span');
+                span.className = 'bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium';
+                span.textContent = sector;
+                sectorsDiv.appendChild(span);
+            });
+
+            // Timeframe
+            document.getElementById('timeframeText').textContent = analysis.timeframe;
+
+            // Insights
+            const insightsList = document.getElementById('insightsList');
+            insightsList.innerHTML = '';
+            analysis.insights.forEach(insight => {
+                const li = document.createElement('li');
+                li.textContent = `• ${insight}`;
+                insightsList.appendChild(li);
+            });
+
+            // Trading Tips
+            const tradingTips = document.getElementById('tradingTips');
+            tradingTips.innerHTML = '';
+            analysis.tradingTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = `• ${tip}`;
+                tradingTips.appendChild(li);
+            });
+        }
+
+        // Allow Enter key to trigger analysis
+        document.getElementById('eventText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                analyzeEvent();
+            }
+        });
+
+        // Add some sample events
+        const sampleEvents = [
+            "Federal Reserve announces 0.25% interest rate increase",
+            "Apple reports record quarterly earnings beating expectations",
+            "Oil prices surge 15% on supply concerns",
+            "Tesla stock down 8% after production miss"
+        ];
+
+        // Add sample button
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('eventText');
+            const button = document.createElement('button');
+            button.textContent = 'Try Sample Event';
+            button.className = 'mt-2 text-sm text-blue-600 hover:text-blue-800 underline';
+            button.onclick = function() {
+                const randomEvent = sampleEvents[Math.floor(Math.random() * sampleEvents.length)];
+                textarea.value = randomEvent;
+            };
+            textarea.parentNode.appendChild(button);
+        });
+    </script>
+</body>
+</html>
